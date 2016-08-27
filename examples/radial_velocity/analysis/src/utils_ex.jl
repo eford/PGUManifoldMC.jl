@@ -22,14 +22,14 @@ end
 function make_param_perturb_scale(param::Vector)
   param_perturb_scale = ones(length(param))
   for i in 1:num_planets(param)
-     set_period(param, 0.0001,plid=i) 
-     set_amplitude(param,0.01,plid=i) 
-     set_ecosw(param,0.05,plid=i) 
-     set_esinw(param,0.05,plid=i) 
-     set_mean_anomaly_at_t0(param,pi/10,plid=i)
+     set_period(param_perturb_scale,0.0001,plid=i) 
+     set_amplitude(param_perturb_scale,0.01,plid=i) 
+     set_ecosw(param_perturb_scale,0.05,plid=i) 
+     set_esinw(param_perturb_scale,0.05,plid=i) 
+     set_mean_anomaly_at_t0(param_perturb_scale,pi/10,plid=i)
   end
   for i in 1:num_obs_offsets(param)
-     set_rvoffset(param,0.3,obsid=i)
+     set_rvoffset(param_perturb_scale,0.3,obsid=i)
   end
   return param_perturb_scale
 end
