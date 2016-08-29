@@ -6,8 +6,8 @@ DATADIR = "../../data"
 SUBDATADIR = "smmala_forward"
 
 nchains = 10
-nmcmc = 11000
-nburnin = 1000
+nmcmc = 1100
+nburnin = 100
 
 dataset = readdlm(joinpath(DATADIR, "example2.csv"), ',', header=false);
 
