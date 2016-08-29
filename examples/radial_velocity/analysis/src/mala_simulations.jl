@@ -37,7 +37,7 @@ println("param_init= ",param_init)
 p = BasicContMuvParameter(
   :p,
   logtarget=plogtarget,
-  autodiff=:forward,
+  autodiff=:forward
 )
 
 #= Uncommenting this gives an error
