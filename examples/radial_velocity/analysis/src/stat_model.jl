@@ -18,7 +18,6 @@ function set_sigma_obs(so::Array{Float64,1}) global sigma_obs = so  end
 function ploglikelihood(p::Vector)
   num_pl = num_planets(p)
   @assert num_pl >= 1
-  return 0
   if !is_valid(p) return -Inf end  # prempt model evaluation
   # Set t, o, and so to point to global arrays with observational data, while enforcing types
   t::Array{Float64,1} = times
