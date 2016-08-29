@@ -12,8 +12,6 @@ include("utils_internal.jl")       # Manually add code to support autodiff of mo
 include("rv_model_keplerian.jl")   # Code to compute RV model for Keplerian orbits
 include("stat_model.jl")           # Code to compute target density, plogtarget
 
-#export isvalid, calc_model_rv_pal
-#export ploglikelihood, plogprior, plogtarget, set_times, set_obs, set_sigma_obs
 
 end # module RvModelKeplerian
 

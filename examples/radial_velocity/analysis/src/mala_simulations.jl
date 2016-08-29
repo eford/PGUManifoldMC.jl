@@ -1,6 +1,6 @@
-using Distributions
-using Lora
-using PGUManifoldMC
+if !isdefined(:Distributions) using Distributions end
+if !isdefined(:Lora) using Lora end
+if !isdefined(:PGUManifoldMC) using PGUManifoldMC end
 
 DATADIR = "../../data"
 SUBDATADIR = "mala"
@@ -19,19 +19,37 @@ ndata = length(obs_times)
 # npars = RvModelKeplerian.num_param_per_planet + 1
 
 include("rv_model.jl")    # provides plogtarget
-using RvModelKeplerian
+#if !isdefined(:RvModelKeplerian)  using RvModelKeplerian end  # Why doesn't this work?
+using RvModelKeplerian 
+
 set_times(obs_times);     # set data to use for model evaluation
 set_obs( obs_rv);
 set_sigma_obs(sigma_obs);
 
+
+include("utils_ex.jl")
+param_true = make_param_true_ex2()
+param_perturb_scale = make_param_perturb_scale(param_true)
+param_init = 0
+param_init = param_true.+0.001*param_perturb_scale.*randn(length(param_true))
+println("param_init= ",param_init)
+
 p = BasicContMuvParameter(
   :p,
   logtarget=plogtarget,
-  #  nkeys=1,
-    autodiff=:forward,
-  #  init=Any[(:p, v0[:p]), (:v, Any[v0[:p]])]
-  #order=1
+  autodiff=:forward,
 )
+
+#= Uncommenting this gives an error
+p = BasicContMuvParameter(
+    :p,
+    logtarget=plogtarget,
+    #nkeys=1,
+    autodiff=:reverse,
+    init=Any[(:p, param_init)]
+    #order=1
+  )
+=#
 
 model = likelihood_model(p, false)
 
@@ -41,47 +59,24 @@ mcrange = BasicMCRange(nsteps=nmcmc, burnin=nburnin)
 
 outopts = Dict{Symbol, Any}(:monitor=>[:value, :logtarget], :diagnostics=>[:accept])
 
-times = Array(Float64, nchains)
-stepsizes = Array(Float64, nchains)
-i = 1
+v0 = Dict(:p=>param_init)
 
-include("utils_ex.jl")
-param_true = make_param_true_ex2()
-param_perturb_scale = make_param_perturb_scale(param_true)
-param_init = 0
+job = BasicMCJob(
+  model,
+  sampler,
+  mcrange,
+  v0,
+  # tuner=VanillaMCTuner(verbose=true),
+  tuner=AcceptanceRateMCTuner(0.574, verbose=true),
+  outopts=outopts
+)
 
-while i <= nchains
-  param_init = param_true.+0.001*param_perturb_scale.*randn(length(param_true))
-  v0 = Dict(:p=>param_init) 
-  println("param_init= ",param_init)
-  job = BasicMCJob(
-    model,
-    sampler,
-    mcrange,
-    v0,
-    tuner=VanillaMCTuner(verbose=true),
-    outopts=outopts
-  )
+tic()
+run(job)
+runtime = toc()
 
-  tic()
-  run(job)
-  runtime = toc()
+chain = output(job)
 
-  chain = output(job)
-  ratio = acceptance(chain)
+acceptance(chain)
 
-  if 0.5 < ratio < 0.65
-    writedlm(joinpath(DATADIR, SUBDATADIR, "chain"*lpad(string(i), 2, 0)*".csv"), chain.value, ',')
-    writedlm(joinpath(DATADIR, SUBDATADIR, "diagnostics"*lpad(string(i), 2, 0)*".csv"), vec(chain.diagnosticvalues), ',')
-
-    times[i] = runtime
-    stepsizes[i] = job.sstate.tune.step
-
-    println("Iteration ", i, " of ", nchains, " completed with acceptance ratio ", ratio)
-    i += 1
-  end
-end
-
-writedlm(joinpath(DATADIR, SUBDATADIR, "times.csv"), times, ',')
-writedlm(joinpath(DATADIR, SUBDATADIR, "stepsizes.csv"), stepsizes, ',')
-
+mean(chain)
