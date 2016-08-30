@@ -1,25 +1,18 @@
-using Distributions
-using Lora
-using PGUManifoldMC
+if !isdefined(:Distributions) using Distributions end
+if !isdefined(:Lora) using Lora end
+if !isdefined(:PGUManifoldMC) using PGUManifoldMC end
+if !isdefined(:RvModelKeplerian)  
+  include("rv_model.jl")    # provides plogtarget
+  using RvModelKeplerian 
+end  
 
 DATADIR = "../../data"
 SUBDATADIR = "amsmmala"
 
-nmcmc = 11000
-nburnin = 1000
-
-dataset = readdlm(joinpath(DATADIR, "example2.csv"), ',', header=false);
-
+dataset = readdlm(joinpath(DATADIR, "example2.csv"), ',', header=false);  # read observational data
 obs_times = dataset[:,1]
 obs_rv = dataset[:,2]
 sigma_obs = dataset[:,3]
-
-ndata = length(obs_times)
-
-include("rv_model.jl")    # provides plogtarget
-#if !isdefined(:RvModelKeplerian)  using RvModelKeplerian end  # Why doesn't this work?
-using RvModelKeplerian
-
 set_times(obs_times);     # set data to use for model evaluation
 set_obs( obs_rv);
 set_sigma_obs(sigma_obs);
@@ -33,10 +26,12 @@ println("param_init= ",param_init)
 
 sampler = AMSMMALA(
   0.06,
-  update=(sstate, pstate, i, tot) -> mod_update!(sstate, pstate, i, tot, 7),
+  update=(sstate, pstate, i, tot) -> mod_update!(sstate, pstate, i, tot, 10),
   transform=H -> softabs(H, 1000.)
 )
 
+nmcmc = 11000
+nburnin = 1000
 mcrange = BasicMCRange(nsteps=nmcmc, burnin=nburnin)
 
 outopts = Dict{Symbol, Any}(:monitor=>[:value, :logtarget], :diagnostics=>[:accept])
@@ -56,12 +51,18 @@ p = BasicContMuvParameter(
 model = likelihood_model(p, false)
 #model = likelihood_model([p], isindexed=false)
 
-times = Array(Float64, length(target_accept_rates))
-stepsizes = Array(Float64, length(target_accept_rates))
+#target_accept_rates = [0.1, 0.2, 0.25, 0.3, 0.5, 0.75, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.99] 
+target_accept_rates = [0.20, 0.234, 0.25, 0.275]
+target_accept_rates = [0.234]
+amsmmala_times = Array(Float64, length(target_accept_rates))
+amsmmala_stepsizes = Array(Float64, length(target_accept_rates))
+amsmmala_acceptance = Array(Float64, length(target_accept_rates))
 amsmmala_esses = Array(Float64, length(target_accept_rates))
+amsmmala_iacts = Array(Float64, length(target_accept_rates))
 
 for i in 1:length(target_accept_rates)
-  target_accept_rate = target_accept_rate[i]
+  target_accept_rate = target_accept_rates[i]
+  println("# i= ", i, ": ",target_accept_rate)
   mctuner = PSMMALAMCTuner(
     VanillaMCTuner(verbose=true),
     VanillaMCTuner(verbose=true),
@@ -87,9 +88,10 @@ for i in 1:length(target_accept_rates)
   println("# mean[",i,"] = ",mean(chain))
   println("# ess[",i,"] = ",ess(chain))
 
-  times[i] = runtime
-  stepsizes[i] = job.sstate.tune.step
-  alsmmala_esses[i] = minimum(ess(chain))
-
+  amsmmala_times[i] = runtime
+  amsmmala_stepsizes[i] = job.sstate.tune.totaltune.step
+  amsmmala_acceptance[i] = ratio
+  amsmmala_esses[i] = minimum(ess(chain))
+  amsmmala_iacts[i] = maximum(iact(chain))
 end
 
