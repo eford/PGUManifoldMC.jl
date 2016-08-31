@@ -25,7 +25,7 @@ param_init = 0
 param_init = param_true.+0.01*param_perturb_scale.*randn(length(param_true))
 println("param_init= ",param_init)
 
-nmcmc = 21000
+nmcmc = 11000
 nburnin = 1000
 mcrange = BasicMCRange(nsteps=nmcmc, burnin=nburnin)
 
@@ -46,11 +46,11 @@ p = BasicContMuvParameter(
 model = likelihood_model(p, false)
 #model = likelihood_model([p], isindexed=false)
 
-target_accept_rates = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4] 
+target_accept_rates = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.75, 0.9] 
 #target_accept_rates = [0.25, 0.5, 0.75, 0.9]  # 0.574 for MALA
 #target_accept_rates = [0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99] 
 #target_accept_rates = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8] 
-#target_accept_rates = [1.0] 
+#target_accept_rates = [0.574] 
 jobs = Array(Any,length(target_accept_rates))
 smmala_chains = Array(Any,length(target_accept_rates))
 smmala_times = Array(Float64, length(target_accept_rates))
@@ -88,7 +88,6 @@ for i in 1:length(target_accept_rates)
   println("# iact[",i,"] = ",iact(chain))
   
   jobs[i] = job
-  chains[i] = chain
   smmala_times[i] = runtime
   smmala_stepsizes[i] = job.sstate.tune.step
   smmala_acceptance[i] = ratio

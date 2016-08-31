@@ -25,6 +25,8 @@ function test_rv_example2()
   plogtarget(param_true)
   ForwardDiff.gradient(plogtarget,param_true)
   ForwardDiff.hessian(plogtarget,param_true)
+  result = HessianResult(param_true)
+  ForwardDiff.hessian!(result, plogtarget, param_true);
 end
 
 
