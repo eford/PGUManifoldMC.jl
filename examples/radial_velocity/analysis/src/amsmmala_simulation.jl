@@ -30,8 +30,8 @@ sampler = AMSMMALA(
   transform=H -> softabs(H, 1000.)
 )
 
-nmcmc = 11000
-nburnin = 1000
+nmcmc = 110000
+nburnin = 10000
 mcrange = BasicMCRange(nsteps=nmcmc, burnin=nburnin)
 
 outopts = Dict{Symbol, Any}(:monitor=>[:value, :logtarget], :diagnostics=>[:accept])
@@ -51,9 +51,9 @@ p = BasicContMuvParameter(
 model = likelihood_model(p, false)
 #model = likelihood_model([p], isindexed=false)
 
-target_accept_rates = [0.1, 0.2, 0.25, 0.3, 0.5, 0.75, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.99] 
+#target_accept_rates = [0.1, 0.2, 0.25, 0.3, 0.5, 0.75, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.99] 
 #target_accept_rates = [0.20, 0.234, 0.25, 0.275]
-#target_accept_rates = [0.234]
+target_accept_rates = [0.234]
 amsmmala_times = Array(Float64, length(target_accept_rates))
 amsmmala_stepsizes = Array(Float64, length(target_accept_rates))
 amsmmala_acceptance = Array(Float64, length(target_accept_rates))
@@ -94,6 +94,6 @@ for i in 1:length(target_accept_rates)
   amsmmala_acceptance[i] = ratio
   amsmmala_esses[i] = minimum(ess(chain))
   amsmmala_iacts[i] = maximum(iact(chain))
-  alsmmala_chains[i] = chain
+  amsmmala_chains[i] = chain
 end
 

@@ -46,11 +46,12 @@ p = BasicContMuvParameter(
 model = likelihood_model(p, false)
 #model = likelihood_model([p], isindexed=false)
 
-target_accept_rates = [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.75, 0.9] 
+#target_accept_rates = [0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 0.9] 
 #target_accept_rates = [0.25, 0.5, 0.75, 0.9]  # 0.574 for MALA
 #target_accept_rates = [0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99] 
 #target_accept_rates = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8] 
 #target_accept_rates = [0.574] 
+target_accept_rates = [0.45] 
 jobs = Array(Any,length(target_accept_rates))
 smmala_chains = Array(Any,length(target_accept_rates))
 smmala_times = Array(Float64, length(target_accept_rates))

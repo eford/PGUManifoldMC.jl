@@ -47,7 +47,3 @@ function plogprior(p::Vector)
 end
 
 plogtarget(p::Vector) = ploglikelihood(p) + plogprior(p)
-
-
-
-

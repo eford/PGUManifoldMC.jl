@@ -39,8 +39,10 @@ extract_period(theta::Vector; plid::Integer = 1) = P0*(exp(theta[1+pl_offset(pli
 extract_amplitude(theta::Vector; plid::Integer = 1) = K0*(exp(theta[2+pl_offset(plid)])-1)
 extract_ecosw(theta::Vector; plid::Integer = 1) = theta[3+pl_offset(plid)]
 extract_esinw(theta::Vector; plid::Integer = 1) = theta[4+pl_offset(plid)]
-extract_w(theta::Vector; plid::Integer = 1) = atan(extract_esinw(theta,plid), extract_ecosw(theta,plid))
 extract_w_plus_mean_anomaly_at_t0(theta::Vector; plid::Integer = 1) = theta[5+pl_offset(plid)]
+
+extract_e(theta::Vector; plid::Integer = 1) = sqrt(extract_esinw(theta,plid)^2+extract_ecosw(theta,plid)^2)
+extract_w(theta::Vector; plid::Integer = 1) = atan(extract_esinw(theta,plid), extract_ecosw(theta,plid))
 extract_mean_anomaly_at_t0(theta::Vector; plid::Integer = 1) = extract_w_plus_mean_anomaly_at_t0(theta,plid)-extract_w(theta,plid)
 extract_rvoffset(theta::Vector; obsid::Integer = 1) = theta[obs_offset(theta,obsid)]
 function extract_ewM0(theta::Vector; plid::Integer = 1) 
@@ -89,8 +91,5 @@ end
 
 export num_planets, num_obs_offsets
 export set_period, set_amplitude, set_ecosw, set_esinw, set_w_plus_mean_anomaly_at_t0, set_mean_anomaly_at_t0, set_rvoffset, set_ew, set_ewM0
-export extract_period, extract_amplitude, extract_ecosw, extract_esinw, extract_w_plus_mean_anomaly_at_t0, extract_mean_anomaly_at_t0, extract_ewM0, extract_PKhkM, extract_PKewM, extract_rvoffset
+export extract_period, extract_amplitude, extract_ecosw, extract_esinw, extract_e, extract_w, extract_w_plus_mean_anomaly_at_t0, extract_mean_anomaly_at_t0, extract_ewM0, extract_PKhkM, extract_PKewM, extract_rvoffset
 export extract_PKhkM, isvalid
-
-
-
