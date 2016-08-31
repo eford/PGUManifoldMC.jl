@@ -9,7 +9,7 @@ end
 DATADIR = "../../data"
 SUBDATADIR = "amsmmala"
 
-dataset = readdlm(joinpath(DATADIR, "example2.csv"), ',', header=false);  # read observational data
+dataset = readdlm(joinpath(DATADIR, "example1.csv"), ',', header=false);  # read observational data
 obs_times = dataset[:,1]
 obs_rv = dataset[:,2]
 sigma_obs = dataset[:,3]
@@ -18,7 +18,7 @@ set_obs( obs_rv);
 set_sigma_obs(sigma_obs);
 
 include("utils_ex.jl")
-param_true = make_param_true_ex2()
+param_true = make_param_true_ex1()
 param_perturb_scale = make_param_perturb_scale(param_true)
 param_init = 0
 param_init = param_true.+0.01*param_perturb_scale.*randn(length(param_true))
@@ -51,14 +51,15 @@ p = BasicContMuvParameter(
 model = likelihood_model(p, false)
 #model = likelihood_model([p], isindexed=false)
 
-#target_accept_rates = [0.1, 0.2, 0.25, 0.3, 0.5, 0.75, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.99] 
-target_accept_rates = [0.20, 0.234, 0.25, 0.275]
-target_accept_rates = [0.234]
+target_accept_rates = [0.1, 0.2, 0.25, 0.3, 0.5, 0.75, 0.8, 0.85, 0.9, 0.93, 0.95, 0.97, 0.99] 
+#target_accept_rates = [0.20, 0.234, 0.25, 0.275]
+#target_accept_rates = [0.234]
 amsmmala_times = Array(Float64, length(target_accept_rates))
 amsmmala_stepsizes = Array(Float64, length(target_accept_rates))
 amsmmala_acceptance = Array(Float64, length(target_accept_rates))
 amsmmala_esses = Array(Float64, length(target_accept_rates))
 amsmmala_iacts = Array(Float64, length(target_accept_rates))
+amsmmala_chains = Array(Any, length(target_accept_rates))
 
 for i in 1:length(target_accept_rates)
   target_accept_rate = target_accept_rates[i]
@@ -93,5 +94,6 @@ for i in 1:length(target_accept_rates)
   amsmmala_acceptance[i] = ratio
   amsmmala_esses[i] = minimum(ess(chain))
   amsmmala_iacts[i] = maximum(iact(chain))
+  alsmmala_chains[i] = chain
 end
 
