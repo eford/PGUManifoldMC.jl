@@ -19,7 +19,7 @@ function calc_rv_pal_one_planet{T}( theta::Array{T,1}, time::Float64; plid::Inte
   #M = mod2pi(time*n-M0)
   M = time*n-M0
   lambda = w+M
-  #E = ecc_anom_bessel_series_approx(M,ecc)  # WARNING: Calling approximate version for now.
+  #E = ecc_anom_bessel_series_approx(M,ecc)  # WARNING: This would calling approximate version
   #E = ecc_anom_itterative_laguerre(M,ecc,tol=tol) # WARNING: hardwired particular algorithm
   E = calc_ecc_anom(M,ecc,tol=tol)
   c = cos(lambda+ecc*sin(E))

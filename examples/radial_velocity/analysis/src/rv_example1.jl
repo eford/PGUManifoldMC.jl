@@ -10,11 +10,14 @@ param_true = make_param_true_ex1()
 num_obs = 50
 observation_timespan = 2*365.25                                
 times = observation_timespan*sort(rand(num_obs));            
-sigma_obs = 2.0*ones(num_obs);    
 model_true = map(t->calc_model_rv(param_true, t),times);
+sigma_obs_scalar = 2.0
+sigma_obs = sigma_obs_scalar*ones(num_obs);    
+jitter = extract_jitter(param_true)
+sigma_eff = sqrt(sigma_obs_scalar^2+jitter^2)
 
 set_times(times);                 
-set_obs( model_true .+ sigma_obs .* randn(length(times)) );
+set_obs( model_true .+ sigma_eff .* randn(length(times)) );
 set_sigma_obs(sigma_obs);
 
 writedlm("../../data/example1.csv",zip(RvModelKeplerian.times,RvModelKeplerian.obs,RvModelKeplerian.sigma_obs),',')

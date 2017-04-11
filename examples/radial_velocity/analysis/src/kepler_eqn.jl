@@ -1,5 +1,3 @@
-
-
 # Compute Eccentric Anomally from Mean Anomally
 # WARNING: Only valid for small e.  Not convergent for e>~0.66
 # Therefore, this should only be used for testing purposes, not general science applications

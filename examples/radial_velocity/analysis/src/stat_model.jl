@@ -24,13 +24,16 @@ function ploglikelihood(p::Vector)
   o::Array{Float64,1} = obs
   so::Array{Float64,1} = sigma_obs
   @assert length(times) == length(obs) == length(sigma_obs)
+  jitter_sq = extract_jitter(p)^2
   chisq = zero(eltype(p))
+  log_normalization = -0.5*length(t)*log(2pi)
   for i in 1:length(t)
     model::eltype(p) = calc_model_rv(p,t[i])
-    #chisq += abs2((model-obs[i])/sigma_obs[i])  # More obvious way, but perhaps less efficient
-    chisq += abs2((model-o[i])/so[i])
+    sigma_eff_sq = so[i]^2+jitter_sq
+    chisq += abs2(model-o[i])/sigma_eff_sq
+    log_normalization -= 0.5*log(sigma_eff_sq)
   end
-  return -0.5*(chisq)  # WARNING: unnormalized, assumes fixed sigma_obs
+  return -0.5*(chisq)+log_normalization
 end
 
 function plogprior(p::Vector) 
@@ -38,11 +41,19 @@ function plogprior(p::Vector)
   @assert num_pl >= 1
   if !is_valid(p) return -Inf end  # prempt model evaluation
   logp = zero(eltype(p))
+  const max_period = 10000.0
+  const max_amplitude = 10000.0
   for plid in 1:num_pl
     P::eltype(p) = extract_period(p,plid=plid)
     K::eltype(p) = extract_amplitude(p,plid=plid)
-    logp += -log((1+P/P0::Float64)*(1+K/K0::Float64))  # WARNING: unnormalized
+    logp += -log((1+P/P0::Float64)*log1p(max_period/P0::Float64)* 
+                 (1+K/K0::Float64)*log1p(max_amplitude/K0::Float64) )
+
   end
+  const max_jitter = 10000.0
+  jitter::eltype(p) = extract_jitter(p)
+  logp += -log((1+jitter/Jitter0)*log1p(max_jitter/Jitter0))
+
   return logp::eltype(p)
 end
 

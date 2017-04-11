@@ -1,6 +1,6 @@
 # Function to create param vector using data in P_true, K_true, e_true, w_true, M0_true, and C_true and RvModelKeplerian.num_param_per_planet
 
-function make_param_true(P_true::Vector, K_true::Vector, e_true::Vector, w_true::Vector, M0_true::Vector, C_true::Vector)
+function make_param_true(P_true::Vector, K_true::Vector, e_true::Vector, w_true::Vector, M0_true::Vector, C_true::Vector, jitter::Real)
   num_pl = length(P_true)
   @assert num_pl == length(P_true) == length(K_true) == length(e_true) == length(w_true) == length(M0_true)
   nppp = RvModelKeplerian.num_param_per_planet
@@ -14,6 +14,7 @@ function make_param_true(P_true::Vector, K_true::Vector, e_true::Vector, w_true:
   for i in 1:length(C_true)
       set_rvoffset(param,C_true[i],obsid=i)
   end
+  set_jitter(param,jitter)
   return param
 end
 
@@ -24,11 +25,12 @@ function make_param_perturb_scale(param::Vector)
      set_amplitude(param_perturb_scale,0.01,plid=i) 
      set_ecosw(param_perturb_scale,0.05,plid=i) 
      set_esinw(param_perturb_scale,0.05,plid=i) 
-     set_w_plus_mean_anomaly_at_t0(param_perturb_scale,pi/10,plid=i)
+     set_w_plus_mean_anomaly_at_t0(param_perturb_scale,pi*0.01,plid=i)
   end
   for i in 1:num_obs_offsets(param)
      set_rvoffset(param_perturb_scale,0.3,obsid=i)
   end
+  set_jitter(param_perturb_scale,0.1)
   return param_perturb_scale
 end
 
@@ -39,8 +41,8 @@ function make_param_true_ex1()
   w_true = pi/4    # Argument of pericenter (i.e., orientation of elipse)
   M0_true = pi/4   # Mean Anomaly at time zero (i.e., where planet is on elipse at t=0)
   C_true = 1.0     # Arbitrary zero point for observatory
-  param_true = make_param_true([P_true],[K_true],[e_true],[w_true],[M0_true],[C_true])
-  #param_true = [ log(1+P_true/RvModelKeplerian.P0), log(1+K_true/RvModelKeplerian.K0), e_true*cos(w_true), e_true*sin(w_true), w_true+M0_true, C_true ]
+  jitter_true = 1.0 # Jitter
+  param_true = make_param_true([P_true],[K_true],[e_true],[w_true],[M0_true],[C_true], jitter_true)
 end
 
 function make_param_true_ex2()
@@ -50,6 +52,7 @@ function make_param_true_ex2()
   w_true = [pi/4, pi/4]     # Argument of pericenter (i.e., orientation of elipse)
   M0_true = [pi/4, 3*pi/4]  # Mean Anomaly at time zero (i.e., where planet is on elipse at t=0)
   C_true = [1.0 ]           # Arbitrary zero point for observatory
-  param_true = make_param_true(P_true,K_true,e_true,w_true,M0_true,C_true)
+  jitter_true = 1.0 # Jitter
+  param_true = make_param_true(P_true,K_true,e_true,w_true,M0_true,C_true,jitter_true)
 end
 
