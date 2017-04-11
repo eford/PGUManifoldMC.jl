@@ -16,8 +16,8 @@ function calc_rv_pal_one_planet{T}( theta::Array{T,1}, time::Float64; plid::Inte
   ecc = sqrt(h*h+k*k)
   w = atan2(k,h)
   n = 2pi/P
-  #M = mod2pi(time*n-M0)
-  M = time*n-M0
+  M = mod2pi(time*n-M0)
+  #M = time*n-M0   # WARNING: Can use if using ecc_anom_bessel_series_approx to allow for reverse autodiff
   lambda = w+M
   #E = ecc_anom_bessel_series_approx(M,ecc)  # WARNING: Calling approximate version for now.
   #E = ecc_anom_itterative_laguerre(M,ecc,tol=tol) # WARNING: hardwired particular algorithm

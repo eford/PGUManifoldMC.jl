@@ -2,6 +2,9 @@
 # Assumes existance of data in arrays times, obs, sigma_obs
 # Assumes existance of function calc_model_rv(theta, time)
 
+export ploglikelihood, plogprior, plogtarget
+export set_times, set_obs, set_sigma_obs
+
 # Observational data to compare model to
 global times # ::Array{Float64,1}
 global obs # ::Array{Float64,1}
@@ -44,9 +47,3 @@ function plogprior(p::Vector)
 end
 
 plogtarget(p::Vector) = ploglikelihood(p) + plogprior(p)
-
-
-export ploglikelihood, plogprior, plogtarget
-export set_times, set_obs, set_sigma_obs
-
-
