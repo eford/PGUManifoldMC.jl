@@ -29,7 +29,7 @@ function set_ewM0(theta::Vector, e, w, M0; plid::Integer = 1)
   set_esinw(theta,e*sin(w),plid=plid) 
   set_w_plus_mean_anomaly_at_t0(theta,w+M0,plid=plid)
 end
-function set_ewM0(theta::Vector, P, K, e, w, M0; plid::Integer = 1) 
+function set_PKewM0(theta::Vector, P, K, e, w, M0; plid::Integer = 1) 
   set_period(theta,P,plid=plid)
   set_amplitude(theta,K,plid=plid) 
   set_ecosw(theta,e*cos(w),plid=plid)

@@ -3,6 +3,7 @@ if(!isdefined(:RvModelKeplerian))
   using RvModelKeplerian
 end
 
+srand(314159)
 include("utils_ex.jl")
 param_true = make_param_true_ex2()
 
