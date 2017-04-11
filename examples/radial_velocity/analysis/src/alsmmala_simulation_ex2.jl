@@ -9,7 +9,7 @@ using RvModelKeplerian
 DATADIR = "../../data"
 SUBDATADIR = "alsmmala"
 
-dataset = readdlm(joinpath(DATADIR, "example1.csv"), ',', header=false); # read observational data
+dataset = readdlm(joinpath(DATADIR, "example2.csv"), ',', header=false); # read observational data
 obs_times = dataset[:,1]
 obs_rv = dataset[:,2]
 sigma_obs = dataset[:,3]
@@ -18,7 +18,7 @@ set_obs( obs_rv);
 set_sigma_obs(sigma_obs);
 
 include("utils_ex.jl")
-param_true = make_param_true_ex1()
+param_true = make_param_true_ex2()
 param_perturb_scale = make_param_perturb_scale(param_true)
 param_init = 0
 param_init = param_true.+0.01*param_perturb_scale.*randn(length(param_true))
@@ -89,6 +89,7 @@ for i in 1:length(target_accept_rates)
   ratio = acceptance(chain)
 
   println("# mean[",i,"] = ",mean(chain))
+  println("# std[",i,"] =",vec(std(chain.value,2)))
   println("# ess[",i,"] = ",ess(chain))
 
   alsmmala_times[i] = runtime

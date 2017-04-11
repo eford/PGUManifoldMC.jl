@@ -20,7 +20,6 @@ set_sigma_obs(sigma_obs);
 include("utils_ex.jl")
 param_true = make_param_true_ex1()
 param_perturb_scale = make_param_perturb_scale(param_true)
-param_init = 0
 param_init = param_true.+0.01*param_perturb_scale.*randn(length(param_true))
 println("param_init= ",param_init)
 
@@ -80,6 +79,7 @@ for i in 1:length(target_accept_rates)
   ratio = acceptance(chain)
 
   println("# mean[",i,"] = ",mean(chain))
+  println("# std[",i,"] =",vec(std(chain.value,2)))
   println("# ess[",i,"] = ",ess(chain))
   println("# iact[",i,"] = ",iact(chain))
 

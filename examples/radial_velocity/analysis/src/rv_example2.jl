@@ -14,7 +14,7 @@ times = observation_timespan*sort(rand(num_obs));
 model_true = map(t->calc_model_rv(param_true, t),times);
 sigma_obs_scalar = 2.0
 sigma_obs = sigma_obs_scalar*ones(num_obs);
-jitter = extract_jitter(param_true)
+jitter = RvModelKeplerian.num_jitters >=1 ? extract_jitter(param_true) : 0.
 sigma_eff = sqrt(sigma_obs_scalar^2+jitter^2)
 
 set_times(times);

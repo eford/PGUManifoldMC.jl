@@ -2,11 +2,12 @@
 
 # model assumes model parameters = [ Period, K, k, h, M0 ] for each planet followed by each RV offset and jitter
 const num_param_per_planet = 5
+const num_jitters = 0   # WARNING: Setting this to zero removes jitter from parameter list, setting it to one leads to errors
 pl_offset(plid::Integer) = (plid-1)*num_param_per_planet
-num_planets(theta::Vector) = floor(Int64,(length(theta)-1)//num_param_per_planet)  # WARNING: Assumes num_rvoffsets<num_param_per_planet
-num_obs_offsets(theta::Vector) = length(theta)-num_planets(theta)*num_param_per_planet-1
+num_planets(theta::Vector) = floor(Int64,(length(theta)-num_jitters)//num_param_per_planet)  # WARNING: Assumes num_rvoffsets<num_param_per_planet
+num_obs_offsets(theta::Vector) = length(theta)-num_planets(theta)*num_param_per_planet-num_jitters
 obs_offset(theta::Vector,obsid::Integer = 1) = num_planets(theta)*num_param_per_planet+obsid
-jitter_offset(theta::Vector,obsid::Integer = 1) = length(theta)
+jitter_offset(theta::Vector,obsid::Integer = 1) = length(theta)-(num_jitters-1)
 
 # constants defining unit system/scale for modified Jeffrys priors
 const P0 = 1.0  # units of days
@@ -23,11 +24,13 @@ set_jitter(theta::Vector, jitter; obsid::Integer = 1) = theta[jitter_offset(thet
 function set_ew(theta::Vector, e, w; plid::Integer = 1) 
   set_ecosw(theta,e*cos(w),plid=plid)
   set_esinw(theta,e*sin(w),plid=plid) 
+  return
 end
 function set_ewM0(theta::Vector, e, w, M0; plid::Integer = 1) 
   set_ecosw(theta,e*cos(w),plid=plid) 
   set_esinw(theta,e*sin(w),plid=plid) 
   set_w_plus_mean_anomaly_at_t0(theta,w+M0,plid=plid)
+  return
 end
 function set_PKewM0(theta::Vector, P, K, e, w, M0; plid::Integer = 1) 
   set_period(theta,P,plid=plid)
@@ -35,6 +38,7 @@ function set_PKewM0(theta::Vector, P, K, e, w, M0; plid::Integer = 1)
   set_ecosw(theta,e*cos(w),plid=plid)
   set_esinw(theta,e*sin(w),plid=plid) 
   set_w_plus_mean_anomaly_at_t0(theta,w+M0,plid=plid)
+  return
 end
 
 

@@ -24,7 +24,7 @@ function ploglikelihood(p::Vector)
   o::Array{Float64,1} = obs
   so::Array{Float64,1} = sigma_obs
   @assert length(times) == length(obs) == length(sigma_obs)
-  jitter_sq = extract_jitter(p)^2
+  jitter_sq = RvModelKeplerian.num_jitters >=1 ? extract_jitter(p)^2 : 0.
   chisq = zero(eltype(p))
   log_normalization = -0.5*length(t)*log(2pi)
   for i in 1:length(t)
@@ -41,6 +41,7 @@ function plogprior(p::Vector)
   @assert num_pl >= 1
   if !is_valid(p) return -Inf end  # prempt model evaluation
   logp = zero(eltype(p))
+  logp -= 2*log(2pi)
   const max_period = 10000.0
   const max_amplitude = 10000.0
   for plid in 1:num_pl
@@ -50,10 +51,12 @@ function plogprior(p::Vector)
                  (1+K/K0::Float64)*log1p(max_amplitude/K0::Float64) )
 
   end
-  const max_jitter = 10000.0
-  jitter::eltype(p) = extract_jitter(p)
-  logp += -log((1+jitter/Jitter0)*log1p(max_jitter/Jitter0))
-
+  if RvModelKeplerian.num_jitters >=1
+     const max_jitter = 10000.0
+     jitter::eltype(p) = extract_jitter(p)
+     logp += -log((1+jitter/Jitter0::Float64)*log1p(max_jitter/Jitter0::Float64))
+  end
+ 
   return logp::eltype(p)
 end
 

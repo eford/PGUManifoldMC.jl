@@ -85,6 +85,7 @@ for i in 1:length(target_accept_rates)
   ratio = acceptance(chain)
 
   println("# mean[",i,"] = ",mean(chain))
+  println("# std[",i,"] =",vec(std(chain.value,2)))
   println("# ess[",i,"] = ",ess(chain))
 
   amsmmala_times[i] = runtime
